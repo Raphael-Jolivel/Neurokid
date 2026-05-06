@@ -1,0 +1,44 @@
+<h1 class="uk-text-center" style="font-weight: 500">Children history</h1>
+
+<div *ngIf="loading" class="uk-text-center uk-padding">
+  <span uk-spinner></span>
+</div>
+
+<div *ngIf="!loading && error" class="uk-alert-danger" uk-alert>
+  <p>{{ error }}</p>
+</div>
+
+<div *ngIf="!loading && !error">
+
+  <p *ngIf="children.length === 0" class="uk-text-center uk-text-meta">
+    No child has been added yet. Please add a child to view their history.
+  </p>
+
+  <div *ngIf="children.length > 0" class="uk-overflow-auto">
+    <table class="uk-table uk-table-divider uk-table-hover uk-table-middle">
+      <thead>
+        <tr>
+          <th>Id</th>
+          <th>First name</th>
+          <th class="uk-text-right">Age</th>
+          <th>Username</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let c of children">
+          <td>{{ c.id }}</td>
+          <td>{{ c.name }}</td>
+          <td class="uk-text-right">{{ c.age }}</td>
+          <td>{{ c.username }}</td>
+          <td class="uk-text-right">
+            <a class="uk-button uk-button-default uk-button-small" [routerLink]="['/child', c.id]">
+              See sessions
+            </a>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+</div>

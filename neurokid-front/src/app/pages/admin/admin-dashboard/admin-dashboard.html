@@ -1,0 +1,44 @@
+<h1 class="uk-text-center" style="font-weight: 500">Admin dashboard</h1>
+
+<div *ngIf="loading" class="uk-text-center uk-padding">
+  <span uk-spinner></span>
+</div>
+
+<div *ngIf="!loading && stats" class="uk-grid-small uk-child-width-1-2@s uk-child-width-1-4@m uk-grid-match" uk-grid>
+
+  <div>
+    <div class="uk-card uk-card-default uk-card-body uk-text-center">
+      <h2 class="uk-margin-remove" style="font-weight: 500">{{ stats.users_count }}</h2>
+      <p class="uk-text-meta uk-margin-small-top">Child accounts</p>
+    </div>
+  </div>
+
+  <div>
+    <div class="uk-card uk-card-default uk-card-body uk-text-center">
+      <h2 class="uk-margin-remove" style="font-weight: 500">{{ stats.sessions_total }}</h2>
+      <p class="uk-text-meta uk-margin-small-top">Total sessions</p>
+    </div>
+  </div>
+
+  <div>
+    <div class="uk-card uk-card-default uk-card-body uk-text-center">
+      <h2 class="uk-margin-remove" style="font-weight: 500">{{ stats.sessions_completed }}</h2>
+      <p class="uk-text-meta uk-margin-small-top">Completed sessions</p>
+    </div>
+  </div>
+
+  <div>
+    <div class="uk-card uk-card-default uk-card-body uk-text-center">
+      <h2 class="uk-margin-remove" style="font-weight: 500">{{ stats.questions_count }}</h2>
+      <p class="uk-text-meta uk-margin-small-top">Question bank</p>
+    </div>
+  </div>
+
+</div>
+
+<div *ngIf="!loading" class="uk-margin-large-top uk-flex uk-flex-center uk-flex-wrap" style="gap: 1rem">
+  <a class="uk-button uk-button-primary" [routerLink]="['/admin/users']">Manage users</a>
+  <a class="uk-button uk-button-default" [routerLink]="['/admin/sessions']">Manage sessions</a>
+  <a class="uk-button uk-button-default" [routerLink]="['/admin/questions']">Question bank</a>
+  <a class="uk-button uk-button-secondary" [routerLink]="['/admin/generate']">Generate a question (AI)</a>
+</div>

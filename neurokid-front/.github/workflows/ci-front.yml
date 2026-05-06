@@ -1,0 +1,83 @@
+# ============================================================
+# CI Front - lint Angular + build + image Docker
+# ============================================================
+# Se déclenche :
+#   - sur chaque push de la branche `front`
+#   - sur chaque pull request ciblant `front`
+#   - manuellement depuis l'onglet Actions (workflow_dispatch)
+#
+# Pas de déploiement auto : VMs sur VPN école inaccessibles
+# depuis les runners GitHub-hosted. Déploiement manuel :
+#
+#   ssh user@VM_FRONT
+#   cd ~/neurokid-front
+#   git pull
+#   docker compose up -d --build
+# ============================================================
+
+name: CI Front
+
+on:
+  push:
+    branches: [front]
+  pull_request:
+    branches: [front]
+  workflow_dispatch:
+
+jobs:
+
+  lint-build:
+    name: Lint + build Angular
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build production
+        run: npm run build -- --configuration=production
+
+      - name: Upload bundle as artefact
+        uses: actions/upload-artifact@v4
+        with:
+          name: neurokid-front-dist
+          path: dist/neurokid-angular/browser
+          retention-days: 7
+
+  docker-build:
+    name: Build image Docker
+    runs-on: ubuntu-latest
+    needs: lint-build
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build front image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: false
+          tags: neurokid-front:ci
+
+  # ----------------------------------------------------------------
+  # Déploiement manuel uniquement (VPN école). À activer si vous
+  # installez un self-hosted runner sur la VM Front.
+  # ----------------------------------------------------------------
+  # deploy:
+  #   name: Deploy on VM Front (self-hosted)
+  #   runs-on: [self-hosted, neurokid-front]
+  #   needs: docker-build
+  #   if: github.ref == 'refs/heads/front' && github.event_name == 'push'
+  #   steps:
+  #     - uses: actions/checkout@v4
+  #     - name: Pull & restart
+  #       run: docker compose up -d --build

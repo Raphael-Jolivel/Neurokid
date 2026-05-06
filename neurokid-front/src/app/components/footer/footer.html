@@ -1,0 +1,30 @@
+<div class="uk-flex uk-flex-column uk-flex-center uk-text-center uk-margin-large-bottom">
+
+  <footer class="uk-container uk-flex uk-flex-center"
+          style="gap: 2%; width: 80%; flex-wrap: wrap; row-gap: 1rem; justify-content: space-evenly">
+
+    <a *ngIf="!authService.isLoggedIn()" class="uk-button uk-button-default" [routerLink]="['/login']">Login</a>
+
+    <a *ngIf="authService.isLoggedIn() && !authService.isAdmin()" class="uk-button" [routerLink]="['/']">Home</a>
+    <a *ngIf="authService.isLoggedIn() && !authService.isAdmin()" class="uk-button" [routerLink]="['/history']">History</a>
+    <a *ngIf="authService.isLoggedIn() && !authService.isAdmin()" class="uk-button" [routerLink]="['/model']">AI Model</a>
+
+    <a *ngIf="authService.isAdmin()" class="uk-button" [routerLink]="['/admin']">Dashboard</a>
+    <a *ngIf="authService.isAdmin()" class="uk-button" [routerLink]="['/admin/users']">Users</a>
+    <a *ngIf="authService.isAdmin()" class="uk-button" [routerLink]="['/admin/sessions']">Sessions</a>
+    <a *ngIf="authService.isAdmin()" class="uk-button" [routerLink]="['/admin/questions']">Questions</a>
+    <a *ngIf="authService.isAdmin()" class="uk-button" [routerLink]="['/admin/generate']">AI Generator</a>
+
+    <button *ngIf="authService.isLoggedIn()" class="uk-button uk-button-default" (click)="onClickLogout()">
+      Logout
+    </button>
+
+  </footer>
+
+  <div class="uk-container uk-margin-medium uk-flex uk-text-center uk-flex-center"
+       style="column-gap: 1rem; flex-wrap: wrap;">
+    <span class="uk-margin-remove">
+      &copy; {{ currentYear }} <em>{{ appName }}</em>. Bachelor 2 - Study Project 2025/26.
+    </span>
+  </div>
+</div>

@@ -1,0 +1,154 @@
+<h1 class="uk-text-center" style="font-weight: 500">Questions</h1>
+
+<p class="uk-text-center uk-text-meta uk-margin-small">
+  List, edit and delete questions in the bank.
+  To generate questions with AI, use the Generator page.
+</p>
+
+<!-- Filters + create button -->
+<div class="uk-grid-small uk-flex-middle uk-margin" uk-grid>
+  <div class="uk-width-1-4@s">
+    <select class="uk-select" [(ngModel)]="filterDomain" (change)="reload()">
+      <option value="">All domains</option>
+      <option *ngFor="let d of DOMAINS" [value]="d">{{ d }}</option>
+    </select>
+  </div>
+  <div class="uk-width-1-4@s">
+    <select class="uk-select" [(ngModel)]="filterDifficulty" (change)="reload()">
+      <option value="">All difficulties</option>
+      <option *ngFor="let d of DIFFICULTIES" [value]="d">{{ d }}</option>
+    </select>
+  </div>
+  <div class="uk-width-expand@s uk-text-right">
+    <button class="uk-button uk-button-primary" (click)="startCreate()" *ngIf="!creating">
+      New question
+    </button>
+  </div>
+</div>
+
+<!-- Create form -->
+<div *ngIf="creating" class="uk-card uk-card-default uk-card-body uk-margin">
+  <h3 style="font-weight: 500">Create a question</h3>
+  <form class="uk-form-stacked" (ngSubmit)="saveCreate()">
+    <div class="uk-grid-small" uk-grid>
+      <div class="uk-width-1-3@s">
+        <label class="uk-form-label">Domain</label>
+        <select class="uk-select" [(ngModel)]="newQ.domain" name="newDomain">
+          <option *ngFor="let d of DOMAINS" [value]="d">{{ d }}</option>
+        </select>
+      </div>
+      <div class="uk-width-1-3@s">
+        <label class="uk-form-label">Difficulty</label>
+        <select class="uk-select" [(ngModel)]="newQ.difficulty" name="newDifficulty">
+          <option *ngFor="let d of DIFFICULTIES" [value]="d">{{ d }}</option>
+        </select>
+      </div>
+      <div class="uk-width-1-3@s">
+        <label class="uk-form-label">Evaluation type</label>
+        <select class="uk-select" [(ngModel)]="newQ.eval_type" name="newEval">
+          <option *ngFor="let t of EVAL_TYPES" [value]="t">{{ t }}</option>
+        </select>
+      </div>
+      <div class="uk-width-1-1">
+        <label class="uk-form-label">Question text</label>
+        <textarea class="uk-textarea" rows="3" [(ngModel)]="newQ.question_text" name="newText"></textarea>
+      </div>
+      <div class="uk-width-1-1">
+        <label class="uk-form-label">Expected answers (comma separated)</label>
+        <textarea class="uk-textarea" rows="2"
+                  [ngModel]="answerKeyAsText(newQ)"
+                  (ngModelChange)="setAnswerKeyFromText(newQ, $event)"
+                  name="newAnswers"></textarea>
+      </div>
+    </div>
+    <div class="uk-margin uk-text-right">
+      <button type="button" class="uk-button uk-button-default" (click)="cancelCreate()">Cancel</button>
+      <button type="submit" class="uk-button uk-button-primary uk-margin-small-left">Save</button>
+    </div>
+  </form>
+</div>
+
+<!-- Loading -->
+<div *ngIf="loading" class="uk-text-center uk-padding">
+  <span uk-spinner></span>
+</div>
+
+<!-- Table -->
+<div *ngIf="!loading" class="uk-overflow-auto">
+  <table class="uk-table uk-table-divider uk-table-hover uk-table-middle">
+    <thead>
+      <tr>
+        <th>Id</th>
+        <th>Domain</th>
+        <th>Difficulty</th>
+        <th>Question</th>
+        <th>Answers</th>
+        <th>Type</th>
+        <th>Source</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      <ng-container *ngFor="let q of questions">
+
+        <!-- Read row -->
+        <tr *ngIf="editingId !== q.id">
+          <td>{{ q.id }}</td>
+          <td>{{ q.domain }}</td>
+          <td>
+            <span class="uk-label">{{ q.difficulty }}</span>
+          </td>
+          <td>{{ q.question_text }}</td>
+          <td class="uk-text-meta">{{ answerKeyAsText(q) }}</td>
+          <td>{{ q.eval_type }}</td>
+          <td>
+            <span class="uk-label" [class.uk-label-warning]="q.source === 'ai'">{{ q.source }}</span>
+          </td>
+          <td class="uk-text-right">
+            <button class="uk-button uk-button-default uk-button-small" (click)="startEdit(q)">Edit</button>
+            <button class="uk-button uk-button-danger uk-button-small uk-margin-small-left" (click)="remove(q)">Delete</button>
+          </td>
+        </tr>
+
+        <!-- Edit row -->
+        <tr *ngIf="editingId === q.id">
+          <td>{{ q.id }}</td>
+          <td>
+            <select class="uk-select uk-form-small" [(ngModel)]="editing.domain" name="editDomain{{q.id}}">
+              <option *ngFor="let d of DOMAINS" [value]="d">{{ d }}</option>
+            </select>
+          </td>
+          <td>
+            <select class="uk-select uk-form-small" [(ngModel)]="editing.difficulty" name="editDifficulty{{q.id}}">
+              <option *ngFor="let d of DIFFICULTIES" [value]="d">{{ d }}</option>
+            </select>
+          </td>
+          <td>
+            <textarea class="uk-textarea" rows="2" [(ngModel)]="editing.question_text" name="editText{{q.id}}"></textarea>
+          </td>
+          <td>
+            <textarea class="uk-textarea" rows="2"
+                      [ngModel]="answerKeyAsText(editing)"
+                      (ngModelChange)="setAnswerKeyFromText(editing, $event)"
+                      name="editAnswers{{q.id}}"></textarea>
+          </td>
+          <td>
+            <select class="uk-select uk-form-small" [(ngModel)]="editing.eval_type" name="editEval{{q.id}}">
+              <option *ngFor="let t of EVAL_TYPES" [value]="t">{{ t }}</option>
+            </select>
+          </td>
+          <td>{{ q.source }}</td>
+          <td class="uk-text-right">
+            <button class="uk-button uk-button-primary uk-button-small" (click)="saveEdit()">Save</button>
+            <button class="uk-button uk-button-default uk-button-small uk-margin-small-left" (click)="cancelEdit()">Cancel</button>
+          </td>
+        </tr>
+
+      </ng-container>
+
+      <tr *ngIf="questions.length === 0">
+        <td colspan="8" class="uk-text-center uk-text-meta">No questions</td>
+      </tr>
+    </tbody>
+  </table>
+</div>

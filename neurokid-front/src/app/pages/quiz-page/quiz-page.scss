@@ -1,0 +1,14 @@
+:host { display: block; width: 100%; }
+
+.feedback-box {
+  border-radius: 8px;
+  padding: 1rem 1.25rem !important;
+}
+
+progress.uk-progress {
+  height: 12px;
+  border-radius: 999px;
+  &::-webkit-progress-bar { background: #e5e9f0; border-radius: 999px; }
+  &::-webkit-progress-value { background: #58cc02; border-radius: 999px; }
+  &::-moz-progress-bar { background: #58cc02; border-radius: 999px; }
+}

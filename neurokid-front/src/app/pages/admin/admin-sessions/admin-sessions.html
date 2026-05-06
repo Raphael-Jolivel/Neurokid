@@ -1,0 +1,48 @@
+<h1 class="uk-text-center" style="font-weight: 500">Sessions</h1>
+
+<div *ngIf="loading" class="uk-text-center uk-padding">
+  <span uk-spinner></span>
+</div>
+
+<div *ngIf="!loading" class="uk-overflow-auto">
+  <table class="uk-table uk-table-divider uk-table-hover uk-table-middle uk-table-small">
+    <thead>
+      <tr>
+        <th>Session</th>
+        <th>Child</th>
+        <th>Status</th>
+        <th class="uk-text-right">Score</th>
+        <th>Level</th>
+        <th>Started</th>
+        <th>Finished</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let s of sessions">
+        <td><code>{{ s.id.substring(0, 8) }}</code></td>
+        <td>{{ s.child_username || '(deleted account)' }}</td>
+        <td>
+          <span class="uk-label" [class.uk-label-success]="s.status === 'complete'">
+            {{ s.status === 'complete' ? 'Complete' : 'In progress' }}
+          </span>
+        </td>
+        <td class="uk-text-right">
+          <span *ngIf="s.overall_score !== null">{{ s.overall_score | number:'1.2-2' }}</span>
+          <span *ngIf="s.overall_score === null" class="uk-text-meta">-</span>
+        </td>
+        <td>{{ s.overall_level || '-' }}</td>
+        <td>{{ s.started_at | date:'dd/MM HH:mm' }}</td>
+        <td>{{ (s.finished_at | date:'dd/MM HH:mm') || '-' }}</td>
+        <td class="uk-text-right">
+          <button class="uk-button uk-button-danger uk-button-small" (click)="remove(s)">
+            Delete
+          </button>
+        </td>
+      </tr>
+      <tr *ngIf="sessions.length === 0">
+        <td colspan="8" class="uk-text-center uk-text-meta">No sessions</td>
+      </tr>
+    </tbody>
+  </table>
+</div>

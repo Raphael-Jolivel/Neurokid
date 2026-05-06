@@ -1,0 +1,59 @@
+# ============================================================
+# NeuroKid - VM Back (API uniquement)
+# ============================================================
+#
+# Cette stack tourne sur la VM dédiée au back-end. La base de
+# données (MariaDB + phpMyAdmin) est sur une autre VM ; le
+# front Angular est sur une 3e VM. Les 3 VMs communiquent via
+# le VPN de l'école.
+#
+# Topologie :
+#
+#   navigateur ────► http://VM_BACK/api/...   (proxy nginx)
+#                              │
+#                              ▼
+#                        api:5000  (Flask + gunicorn)
+#                              │
+#                              ▼
+#                       VM_DB:3306  (MariaDB)
+#
+# Démarrage :
+#   cp .env.example .env       # éditer les valeurs (IP VM_DB, secrets)
+#   docker compose up -d --build
+# ============================================================
+
+services:
+
+  api:
+    build:
+      context: ./neurokid_api
+    container_name: neurokid-api
+    restart: unless-stopped
+    environment:
+      DB_HOST:      ${DB_HOST}
+      DB_PORT:      ${DB_PORT:-3306}
+      DB_USER:      ${DB_USER}
+      DB_PASSWORD:  ${DB_PASSWORD}
+      DB_NAME:      ${DB_NAME}
+      CORS_ORIGINS: ${CORS_ORIGINS}
+      FLASK_DEBUG:  "0"
+    networks:
+      - backend
+    # Pas de `ports:` ici : seul le proxy expose le port 80 vers l'hôte.
+
+  proxy:
+    image: nginx:1.27-alpine
+    container_name: neurokid-proxy
+    restart: unless-stopped
+    ports:
+      - "${HTTP_PORT:-80}:80"
+    volumes:
+      - ./proxy/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    networks:
+      - backend
+    depends_on:
+      - api
+
+networks:
+  backend:
+    driver: bridge

@@ -1,0 +1,51 @@
+# ============================================================
+# CI DB - validation du schéma SQL et de la stack compose
+# ============================================================
+# Se déclenche sur push/PR de la branche `db` ou manuellement.
+# La VM DB n'est jamais redéployée automatiquement (pas d'accès
+# depuis Internet, et un redéploiement BDD se fait à froid).
+# ============================================================
+
+name: CI DB
+
+on:
+  push:
+    branches: [db, main]
+    paths:
+      - "sql/**"
+      - "docker-compose.yml"
+      - ".github/workflows/ci-db.yml"
+  pull_request:
+    branches: [db, main]
+  workflow_dispatch:
+
+jobs:
+
+  validate:
+    name: Validate compose + SQL schema
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Validate docker-compose.yml
+        run: docker compose config
+
+      - name: Smoke test - import schema in MariaDB
+        run: |
+          docker run -d --name testdb \
+            -e MARIADB_ROOT_PASSWORD=root \
+            -e MARIADB_DATABASE=cognitive_assessment \
+            mariadb:11
+          # On attend que la BDD soit prête
+          for i in $(seq 1 30); do
+            if docker exec testdb healthcheck.sh --connect --innodb_initialized 2>/dev/null; then
+              break
+            fi
+            sleep 2
+          done
+          docker exec -i testdb \
+            mariadb -u root -proot cognitive_assessment \
+            < sql/01-init.sql
+          docker exec testdb \
+            mariadb -u root -proot -e "SHOW TABLES IN cognitive_assessment;"
+          docker rm -f testdb

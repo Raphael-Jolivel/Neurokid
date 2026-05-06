@@ -1,0 +1,105 @@
+<h1 class="uk-text-center" style="font-weight: 500">Question generator</h1>
+
+<p class="uk-text-center uk-text-meta uk-margin-small">
+  Generation via the Google Gemini API (gemini-2.5-flash). The key is never sent to our server:
+  it is stored in your browser and forwarded with each request.
+</p>
+
+<!-- Gemini key block -->
+<div class="uk-card uk-card-default uk-card-body uk-margin">
+  <h3 style="font-weight: 500">Gemini API key</h3>
+  <div class="uk-grid-small uk-flex-middle" uk-grid>
+    <div class="uk-width-expand@s">
+      <input class="uk-input"
+             [type]="keyVisible ? 'text' : 'password'"
+             [(ngModel)]="openAIKey"
+             placeholder="AIzaSy..." />
+    </div>
+    <div class="uk-width-auto@s">
+      <button class="uk-button uk-button-default" type="button" (click)="keyVisible = !keyVisible">
+        {{ keyVisible ? 'Hide' : 'Show' }}
+      </button>
+      <button class="uk-button uk-button-primary uk-margin-small-left" type="button" (click)="saveKey()">
+        Save
+      </button>
+      <button class="uk-button uk-button-danger uk-margin-small-left" type="button"
+              (click)="clearKey()" *ngIf="hasKey()">
+        Delete
+      </button>
+    </div>
+  </div>
+  <p class="uk-text-meta uk-margin-small-top" *ngIf="hasKey()">
+    Key stored in the browser (localStorage).
+    Get a free key: <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener">Google AI Studio</a>.
+  </p>
+  <p class="uk-text-meta uk-margin-small-top" *ngIf="!hasKey()">
+    No key stored. Get a free key on
+    <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener">Google AI Studio</a>,
+    then paste it above to enable generation.
+  </p>
+</div>
+
+<!-- Generation block -->
+<div class="uk-card uk-card-default uk-card-body uk-margin">
+  <h3 style="font-weight: 500">Generate a question</h3>
+  <div class="uk-grid-small uk-flex-middle" uk-grid>
+    <div class="uk-width-1-3@s">
+      <label class="uk-form-label">Domain</label>
+      <select class="uk-select" [(ngModel)]="selectedDomain">
+        <option *ngFor="let d of DOMAINS" [value]="d">{{ d }}</option>
+      </select>
+    </div>
+    <div class="uk-width-expand@s uk-text-right">
+      <button class="uk-button uk-button-primary"
+              (click)="generate()"
+              [disabled]="loading || !hasKey()">
+        <span *ngIf="!loading">Generate</span>
+        <span *ngIf="loading"><span uk-spinner="ratio: 0.6"></span> Generating...</span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Result block -->
+<div *ngIf="generated" class="uk-card uk-card-default uk-card-body uk-margin">
+  <h3 style="font-weight: 500">Generated question</h3>
+
+  <dl class="uk-description-list uk-description-list-divider">
+    <dt>Domain</dt>
+    <dd>{{ selectedDomain }}</dd>
+
+    <dt>Question text</dt>
+    <dd>{{ generated.question_text }}</dd>
+
+    <dt>Expected answers</dt>
+    <dd class="uk-text-meta">{{ answerKeyAsText(generated) }}</dd>
+
+    <dt>Evaluation type</dt>
+    <dd>{{ generated.eval_type }}</dd>
+
+    <dt>Difficulty suggested by AI</dt>
+    <dd>
+      <span class="uk-label">{{ generated.suggested_difficulty }}</span>
+    </dd>
+  </dl>
+
+  <div class="uk-margin">
+    <label class="uk-form-label">Final difficulty (human validation)</label>
+    <div class="uk-margin-small-top">
+      <label class="uk-margin-right" *ngFor="let d of DIFFICULTIES">
+        <input class="uk-radio" type="radio" name="finalDifficulty"
+               [value]="d" [(ngModel)]="chosenDifficulty" />
+        {{ d }}
+      </label>
+    </div>
+  </div>
+
+  <div class="uk-margin uk-text-right">
+    <button class="uk-button uk-button-default" type="button" (click)="reject()">
+      Reject
+    </button>
+    <button class="uk-button uk-button-primary uk-margin-small-left" type="button" (click)="validate()">
+      Validate and add to bank
+    </button>
+  </div>
+</div>

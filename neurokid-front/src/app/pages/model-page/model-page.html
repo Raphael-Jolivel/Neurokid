@@ -1,0 +1,64 @@
+<h1 class="uk-text-center" style="font-weight: 500">AI Model</h1>
+
+<div *ngIf="loading" class="uk-text-center uk-padding">
+  <span uk-spinner></span>
+</div>
+
+<div *ngIf="!loading && error" class="uk-alert-danger" uk-alert>
+  <p>{{ error }}</p>
+</div>
+
+<div *ngIf="!loading && info && !error">
+
+  <div class="uk-grid uk-grid-small uk-child-width-1-2@s uk-margin-medium" uk-grid>
+    <div>
+      <div class="uk-card uk-card-default uk-card-body">
+        <h4 class="uk-margin-remove" style="font-weight: 500">Completed Sessions</h4>
+        <p class="uk-text-large uk-margin-small-top">{{ info.completed_sessions }}</p>
+      </div>
+    </div>
+    <div>
+      <div class="uk-card uk-card-default uk-card-body">
+        <h4 class="uk-margin-remove" style="font-weight: 500">Training rows</h4>
+        <p class="uk-text-large uk-margin-small-top">{{ info.training_rows_available }}</p>
+      </div>
+    </div>
+  </div>
+
+  <h3 style="font-weight: 500">Features</h3>
+  <div class="uk-overflow-auto">
+    <table class="uk-table uk-table-divider uk-table-small">
+      <thead>
+        <tr><th>Name</th><th class="uk-text-right">Importance</th></tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let k of featureKeys">
+          <td>{{ k }}</td>
+          <td class="uk-text-right">{{ formatValue(info.model_features[k]) }}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3 class="uk-margin-medium-top" style="font-weight: 500">Metrics</h3>
+  <div class="uk-overflow-auto">
+    <table class="uk-table uk-table-divider uk-table-small">
+      <thead>
+        <tr><th>Metric</th><th class="uk-text-right">Value</th></tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let k of metricKeys">
+          <td>{{ k }}</td>
+          <td class="uk-text-right">{{ formatValue(info.model_metrics[k]) }}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="uk-flex uk-flex-center uk-margin-large-top">
+    <button class="uk-button uk-button-primary" (click)="retrain()" [disabled]="retraining">
+      <span *ngIf="!retraining">Retrain the model</span>
+      <span *ngIf="retraining">Retraining in progress...</span>
+    </button>
+  </div>
+</div>

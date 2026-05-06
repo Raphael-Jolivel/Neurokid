@@ -1,0 +1,33 @@
+# ============================================================
+# NeuroKid - VM Front-end (Angular + nginx)
+# ============================================================
+#
+# Cette stack tourne sur la VM dédiée au front. Le navigateur
+# appelle DIRECTEMENT la VM Back pour les requêtes API ; le
+# front lit l'URL cible dans /config.json (généré au démarrage
+# du conteneur à partir de la variable API_URL).
+#
+# Démarrage :
+#   cp .env.example .env       # éditer API_URL
+#   docker compose up -d --build
+# ============================================================
+
+services:
+
+  web:
+    build:
+      context: .
+    container_name: neurokid-web
+    restart: unless-stopped
+    environment:
+      # URL publique de la VM Back. Le navigateur appelle cette URL,
+      # donc elle doit être joignable depuis le VPN école.
+      API_URL: ${API_URL}
+    ports:
+      - "${HTTP_PORT:-80}:80"
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost/healthz"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 10s

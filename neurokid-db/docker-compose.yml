@@ -1,0 +1,70 @@
+# ============================================================
+# NeuroKid - VM Base de données (MariaDB + phpMyAdmin)
+# ============================================================
+#
+# Cette stack tourne sur la VM dédiée à la BDD. Elle expose le
+# port 3306 sur l'interface VPN pour que la VM Back puisse s'y
+# connecter, et phpMyAdmin sur le port 8080 pour l'administration.
+#
+# Démarrage :
+#   cp .env.example .env
+#   docker compose up -d
+#
+# Le fichier sql/01-init.sql n'est rejoué QUE lors du tout
+# premier démarrage (volume `db-data` vide). Pour réinitialiser :
+#   docker compose down -v
+# ============================================================
+
+services:
+
+  db:
+    image: mariadb:11
+    container_name: neurokid-db
+    restart: unless-stopped
+    environment:
+      MARIADB_ROOT_PASSWORD: ${MARIADB_ROOT_PASSWORD}
+      MARIADB_DATABASE:      ${MARIADB_DATABASE}
+      MARIADB_USER:          ${MARIADB_USER}
+      MARIADB_PASSWORD:      ${MARIADB_PASSWORD}
+    volumes:
+      - db-data:/var/lib/mysql
+      - ./sql:/docker-entrypoint-initdb.d:ro
+    ports:
+      # On bind sur l'interface VPN uniquement pour ne pas exposer
+      # la BDD au-delà. Remplacer 0.0.0.0 par l'IP de la VM sur le
+      # VPN si plusieurs interfaces réseau cohabitent.
+      - "${DB_BIND_HOST:-0.0.0.0}:${DB_PORT:-3306}:3306"
+    networks:
+      - dbnet
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+
+  phpmyadmin:
+    image: phpmyadmin:5
+    container_name: neurokid-phpmyadmin
+    restart: unless-stopped
+    environment:
+      PMA_HOST:     db
+      PMA_PORT:     "3306"
+      PMA_USER:     ${MARIADB_USER}
+      PMA_PASSWORD: ${MARIADB_PASSWORD}
+      UPLOAD_LIMIT: 64M
+    ports:
+      - "${PHPMYADMIN_PORT:-8080}:80"
+    networks:
+      - dbnet
+    depends_on:
+      db:
+        condition: service_healthy
+
+networks:
+  dbnet:
+    driver: bridge
+
+volumes:
+  db-data:
+    driver: local

@@ -1,0 +1,59 @@
+<div *ngIf="loading" class="uk-text-center uk-padding">
+  <span uk-spinner></span>
+  <p>Loading the question...</p>
+</div>
+
+<div *ngIf="!loading && error" class="uk-alert-danger" uk-alert>
+  <p>{{ error }}</p>
+</div>
+
+<div *ngIf="!loading && question && !error">
+
+  <!-- Progress bar -->
+  <div class="uk-margin-small-bottom uk-flex uk-flex-between">
+    <span class="uk-text-meta">Question {{ currentIndex + 1 }} / {{ totalQuestions }}</span>
+    <span class="uk-text-meta">{{ progress }}%</span>
+  </div>
+  <progress class="uk-progress" [value]="currentIndex" [max]="totalQuestions"></progress>
+
+  <!-- Domain / difficulty labels -->
+  <div class="uk-margin-medium-top uk-flex" style="gap: 0.5rem; flex-wrap: wrap;">
+    <span class="uk-label">{{ question.domain }}</span>
+    <span class="uk-label" [ngClass]="difficultyClass()">{{ difficultyLabel() }}</span>
+  </div>
+
+  <!-- Question text -->
+  <h2 class="uk-margin-medium-top" style="font-weight: 500; user-select: none;"
+      (copy)="$event.preventDefault()"
+      (cut)="$event.preventDefault()"
+      (contextmenu)="$event.preventDefault()">
+    {{ question.question }}
+  </h2>
+
+  <!-- Answer field -->
+  <form #form="ngForm" (ngSubmit)="submitAnswer()" class="uk-margin-medium-top">
+    <input class="uk-input uk-form-large" name="answer" [(ngModel)]="answer"
+           placeholder="Your answer..." autocomplete="off"
+           [disabled]="showFeedback || submitting" required/>
+
+    <div class="uk-margin-top uk-flex uk-flex-middle" style="gap: 1rem">
+      <button type="submit" class="uk-button uk-button-primary uk-button-large"
+              [disabled]="!answer.trim() || showFeedback || submitting">
+        Submit
+      </button>
+      <span class="uk-text-meta" *ngIf="attempts > 1">Attempt no. {{ attempts }}</span>
+    </div>
+  </form>
+
+  <!-- Feedback -->
+  <div *ngIf="showFeedback && lastFeedback"
+       class="uk-margin-medium-top uk-padding-small feedback-box"
+       [ngClass]="lastFeedback.correct ? 'feedback-correct' : 'feedback-wrong'">
+    <strong>{{ lastFeedback.message }}</strong>
+    <div class="uk-text-meta uk-margin-small-top">
+      Partial score: {{ lastFeedback.partial | number: '1.0-2' }}
+      &middot; Estimated cognitive score: {{ lastFeedback.predicted | number: '1.0-2' }}
+    </div>
+  </div>
+
+</div>

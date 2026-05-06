@@ -1,0 +1,86 @@
+/* ─────────────────────────────────────────────────────────
+   Global styles - NeuroKid (style Duolingo simplifié)
+   ───────────────────────────────────────────────────────── */
+
+* {
+  box-sizing: border-box;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  width: 100%;
+  background-color: #f7f9fb;
+
+  overflow: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+
+  .uk-alert {
+    margin-top: 0.75rem;
+  }
+}
+
+@media (max-width: 650px) {
+  .form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .main-card, .main-container {
+    flex: 1;
+  }
+}
+
+.uk-card.uk-card-default.uk-card-body {
+  width: 90%;
+}
+
+.uk-card-hover:hover {
+  box-shadow: 0 14px 25px rgba(0, 0, 0, .075) !important;
+}
+
+.no-text-decoration {
+  text-decoration: none !important;
+}
+
+/* ── Couleurs de difficulté (style Duolingo neutre) ── */
+.uk-label.diff-easy   { background: #58cc02; color: #fff; }
+.uk-label.diff-medium { background: #ffc800; color: #2b2b2b; }
+.uk-label.diff-hard   { background: #ff4b4b; color: #fff; }
+
+/* ── Niveau cognitif ── */
+.level-badge {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 999px;
+  font-weight: 500;
+  font-size: 0.85rem;
+}
+.level-Excellent       { background: #58cc02; color: #fff; }
+.level-Good            { background: #89e219; color: #fff; }
+.level-Average         { background: #ffc800; color: #2b2b2b; }
+.level-Needs-Practice  { background: #ff9600; color: #fff; }
+.level-Developing      { background: #ff4b4b; color: #fff; }
+
+/* ── Feedback Quiz ── */
+.feedback-correct {
+  background: rgba(88, 204, 2, 0.1);
+  border-left: 3px solid #58cc02;
+  color: #2b6e00;
+}
+.feedback-wrong {
+  background: rgba(255, 75, 75, 0.08);
+  border-left: 3px solid #ff4b4b;
+  color: #b30000;
+}

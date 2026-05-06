@@ -1,0 +1,82 @@
+<div *ngIf="loading" class="uk-text-center uk-padding">
+  <span uk-spinner></span>
+  <p>Loading the report...</p>
+</div>
+
+<div *ngIf="!loading && error" class="uk-alert-danger" uk-alert>
+  <p>{{ error }}</p>
+</div>
+
+<div *ngIf="!loading && report && !error">
+
+  <h1 class="uk-text-center" style="font-weight: 500">Session report</h1>
+
+  <div class="uk-text-center uk-margin-medium">
+    <p class="uk-margin-remove uk-text-meta">{{ report.child_name }} &middot; {{ report.age }} years old</p>
+    <div class="uk-margin-small-top">
+      <span class="uk-text-large" style="font-weight: 600">
+        Overall score: {{ report.overall_cognitive_score | number: '1.0-2' }} / 10
+      </span>
+    </div>
+    <div class="uk-margin-small">
+      <span [ngClass]="levelClass(report.overall_level)">{{ report.overall_level }}</span>
+    </div>
+  </div>
+
+  <h3 style="font-weight: 500">Performance by domain</h3>
+  <table class="uk-table uk-table-divider uk-table-middle">
+    <thead>
+      <tr>
+        <th>Domain</th>
+        <th class="uk-text-right">Average score</th>
+        <th>Level</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let d of domainList">
+        <td>{{ d.domain }}</td>
+        <td class="uk-text-right">{{ d.average_score | number: '1.0-2' }}</td>
+        <td><span [ngClass]="levelClass(d.level)">{{ d.level }}</span></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3 class="uk-margin-medium-top" style="font-weight: 500">Answer details</h3>
+  <div class="uk-overflow-auto">
+    <table class="uk-table uk-table-divider uk-table-small">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Domain</th>
+          <th>Difficulty</th>
+          <th>Answer</th>
+          <th class="uk-text-center">Correct</th>
+          <th class="uk-text-right">Partial</th>
+          <th class="uk-text-right">Time (s)</th>
+          <th class="uk-text-right">Score</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let a of report.answer_details; let i = index">
+          <td>{{ i + 1 }}</td>
+          <td>{{ a.domain }}</td>
+          <td><span class="uk-label" [ngClass]="difficultyClass(a.difficulty)">{{ difficultyLabel(a.difficulty) }}</span></td>
+          <td><em>{{ a.raw_answer }}</em></td>
+          <td class="uk-text-center">
+            <span *ngIf="a.answer_correct" class="uk-text-success">Yes</span>
+            <span *ngIf="!a.answer_correct" class="uk-text-danger">No</span>
+          </td>
+          <td class="uk-text-right">{{ a.partial_score | number: '1.0-2' }}</td>
+          <td class="uk-text-right">{{ a.response_time_sec | number: '1.0-2' }}</td>
+          <td class="uk-text-right">{{ a.predicted_score | number: '1.0-2' }}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="uk-flex uk-flex-center uk-margin-large-top" style="gap: 1rem; flex-wrap: wrap;">
+    <a class="uk-button uk-button-primary" [routerLink]="['/']">Back to home</a>
+    <a class="uk-button uk-button-default" [routerLink]="['/history']">See history</a>
+  </div>
+
+</div>

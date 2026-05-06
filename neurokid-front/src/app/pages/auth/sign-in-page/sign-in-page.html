@@ -1,0 +1,39 @@
+<h1 class="uk-text-center" style="font-weight: 500">Login</h1>
+
+<form #form="ngForm" class="form-grid">
+
+  <div>
+    <input class="uk-input" name="username" [(ngModel)]="credentials.username"
+           #username="ngModel" placeholder="Username *" type="text" required/>
+
+    <div class="uk-alert" style="background: rgba(255,0,0,0.05)"
+         *ngIf="username.invalid && (username.dirty || username.touched)">
+      <div *ngIf="username.errors?.['required']">
+        Username required.
+      </div>
+    </div>
+  </div>
+
+  <div>
+    <input class="uk-input" name="password" [(ngModel)]="credentials.password"
+           #password="ngModel" placeholder="Password *" type="password" required/>
+
+    <div class="uk-alert" style="background: rgba(255,0,0,0.05)"
+         *ngIf="password.invalid && (password.dirty || password.touched)">
+      <div *ngIf="password.errors?.['required']">
+        Password required.
+      </div>
+    </div>
+  </div>
+
+  <div class="uk-flex uk-flex-middle uk-margin-small" style="gap: 2rem">
+    <button class="uk-button uk-button-default" [disabled]="form.invalid" (click)="sendFormData()">
+      Login
+    </button>
+    <span class="uk-text-danger">{{ error }}</span>
+  </div>
+
+</form>
+
+<p>New user? <a [routerLink]="['/register']" class="no-text-decoration"> --&gt; Create an account</a></p>
+<p>Forgotten password? <a [routerLink]="['/reset-password']" class="no-text-decoration"> --&gt; Reset password</a></p>

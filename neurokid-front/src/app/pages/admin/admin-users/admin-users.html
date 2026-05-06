@@ -1,0 +1,50 @@
+<h1 class="uk-text-center" style="font-weight: 500">Users</h1>
+
+<p class="uk-text-center uk-text-meta uk-margin-small">
+  Anonymization clears personal data (name, username, password)
+  but keeps sessions and answers for the AI model. GDPR compliant.
+</p>
+
+<div *ngIf="loading" class="uk-text-center uk-padding">
+  <span uk-spinner></span>
+</div>
+
+<div *ngIf="!loading" class="uk-overflow-auto">
+  <table class="uk-table uk-table-divider uk-table-hover uk-table-middle">
+    <thead>
+      <tr>
+        <th>Id</th>
+        <th>Name</th>
+        <th class="uk-text-right">Age</th>
+        <th>Username</th>
+        <th>Role</th>
+        <th class="uk-text-right">Sessions</th>
+        <th>Created at</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let u of users" [class.uk-text-muted]="u.username.startsWith('anon_')">
+        <td>{{ u.id }}</td>
+        <td>{{ u.name }}</td>
+        <td class="uk-text-right">{{ u.age || '-' }}</td>
+        <td>{{ u.username }}</td>
+        <td>
+          <span class="uk-label" [class.uk-label-warning]="u.role === 'admin'">{{ u.role }}</span>
+        </td>
+        <td class="uk-text-right">{{ u.sessions_count }}</td>
+        <td>{{ u.created_at | date:'dd/MM/yyyy HH:mm' }}</td>
+        <td class="uk-text-right">
+          <button *ngIf="u.role !== 'admin' && !u.username.startsWith('anon_')"
+                  class="uk-button uk-button-danger uk-button-small"
+                  (click)="anonymize(u)">
+            Anonymize
+          </button>
+        </td>
+      </tr>
+      <tr *ngIf="users.length === 0">
+        <td colspan="8" class="uk-text-center uk-text-meta">No users</td>
+      </tr>
+    </tbody>
+  </table>
+</div>

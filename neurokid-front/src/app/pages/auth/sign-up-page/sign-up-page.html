@@ -1,0 +1,68 @@
+<h1 class="uk-text-center" style="font-weight: 500">Create an account</h1>
+
+<form #form="ngForm" class="form-grid">
+
+  <div>
+    <input class="uk-input" name="name" [(ngModel)]="user.name"
+           #name="ngModel" placeholder="First name *" type="text" required minlength="2"/>
+
+    <div class="uk-alert" style="background: rgba(255,0,0,0.05)"
+         *ngIf="name.invalid && (name.dirty || name.touched)">
+      <div *ngIf="name.errors?.['required']">First name is required.</div>
+      <div *ngIf="name.errors?.['minlength']">First name must contain at least 2 characters.</div>
+    </div>
+  </div>
+
+  <div>
+    <input class="uk-input" name="age" [(ngModel)]="user.age"
+           #age="ngModel" placeholder="Age (7 to 12) *" type="number" min="7" max="12" required/>
+
+    <div class="uk-alert" style="background: rgba(255,0,0,0.05)"
+         *ngIf="age.invalid && (age.dirty || age.touched)">
+      <div *ngIf="age.errors?.['required']">Age is required.</div>
+      <div *ngIf="age.errors?.['min'] || age.errors?.['max']">Age must be between 7 and 12.</div>
+    </div>
+  </div>
+
+  <div>
+    <input class="uk-input" name="username" [(ngModel)]="user.username"
+           #username="ngModel" placeholder="Username *" type="text" required minlength="3"/>
+
+    <div class="uk-alert" style="background: rgba(255,0,0,0.05)"
+         *ngIf="username.invalid && (username.dirty || username.touched)">
+      <div *ngIf="username.errors?.['required']">Username is required.</div>
+      <div *ngIf="username.errors?.['minlength']">At least 3 characters.</div>
+    </div>
+  </div>
+
+  <div>
+    <input class="uk-input" name="password" [(ngModel)]="user.password"
+           #password="ngModel" placeholder="Password *" type="password" required minlength="4"/>
+
+    <div class="uk-alert" style="background: rgba(255,0,0,0.05)"
+         *ngIf="password.invalid && (password.dirty || password.touched)">
+      <div *ngIf="password.errors?.['required']">Password is required.</div>
+      <div *ngIf="password.errors?.['minlength']">At least 4 characters.</div>
+    </div>
+  </div>
+
+  <div>
+    <input class="uk-input" name="passwordConfirm" [(ngModel)]="user.passwordConfirm"
+           #passwordConfirm="ngModel" placeholder="Confirm password *" type="password" required/>
+
+    <div class="uk-alert" style="background: rgba(255,0,0,0.05)"
+         *ngIf="user.passwordConfirm && !passwordsMatch()">
+      The passwords do not match.
+    </div>
+  </div>
+
+  <div class="uk-flex uk-flex-middle uk-margin-small" style="gap: 2rem">
+    <button class="uk-button uk-button-default" [disabled]="form.invalid" (click)="sendFormData()">
+      Create account
+    </button>
+    <span class="uk-text-danger">{{ error }}</span>
+  </div>
+
+</form>
+
+<p>Already have an account? <a [routerLink]="['/login']" class="no-text-decoration"> --&gt; Login</a></p>

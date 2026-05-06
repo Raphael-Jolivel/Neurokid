@@ -1,0 +1,58 @@
+<div *ngIf="loading" class="uk-text-center uk-padding">
+  <span uk-spinner></span>
+</div>
+
+<div *ngIf="!loading && error" class="uk-alert-danger" uk-alert>
+  <p>{{ error }}</p>
+</div>
+
+<div *ngIf="!loading && child && !error">
+
+  <div class="uk-flex uk-flex-between uk-flex-middle uk-flex-wrap uk-margin-medium-bottom">
+    <div>
+      <h1 class="uk-margin-remove" style="font-weight: 500">{{ child.name }}</h1>
+      <p class="uk-text-meta uk-margin-remove">{{ child.age }} years &middot; {{ child.username }}</p>
+    </div>
+    <a class="uk-button uk-button-default" [routerLink]="['/history']">
+      Back to history
+    </a>
+  </div>
+
+  <h3 style="font-weight: 500">Sessions</h3>
+
+  <p *ngIf="sessions.length === 0" class="uk-text-meta">
+    No sessions found for this child. Encourage them to start a session!
+  </p>
+
+  <div *ngIf="sessions.length > 0" class="uk-overflow-auto">
+    <table class="uk-table uk-table-divider uk-table-hover uk-table-middle">
+      <thead>
+        <tr>
+          <th>Id</th>
+          <th>Status</th>
+          <th class="uk-text-right">Score</th>
+          <th>Level</th>
+          <th>Started at</th>
+          <th>Finished at</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let s of sessions">
+          <td><code>{{ s.id }}</code></td>
+          <td>{{ s.status }}</td>
+          <td class="uk-text-right">{{ s.overall_score | number: '1.0-2' }}</td>
+          <td><span [ngClass]="levelClass(s.overall_level)">{{ s.overall_level }}</span></td>
+          <td>{{ s.started_at }}</td>
+          <td>{{ s.finished_at }}</td>
+          <td class="uk-text-right">
+            <a *ngIf="s.status === 'complete'" class="uk-button uk-button-default uk-button-small"
+               [routerLink]="['/report', s.id]">
+              See report
+            </a>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
